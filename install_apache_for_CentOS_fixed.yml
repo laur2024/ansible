@@ -1,0 +1,77 @@
+---
+- name: Ensure necessary packages are installed and updated
+  hosts: all
+  become: true
+  tasks:
+    - name: Update repository files to use Vault
+      replace:
+        path: /etc/yum.repos.d/CentOS-Base.repo
+        regexp: '(^baseurl=).*(7.9.2009/os/x86_64/)'
+        replace: '\1http://vault.centos.org/7.9.2009/os/x86_64/'
+
+    - name: Update repository files for updates
+      replace:
+        path: /etc/yum.repos.d/CentOS-Base.repo
+        regexp: '(^baseurl=).*(7.9.2009/updates/x86_64/)'
+        replace: '\1http://vault.centos.org/7.9.2009/updates/x86_64/'
+
+    - name: Update repository files for extras
+      replace:
+        path: /etc/yum.repos.d/CentOS-Base.repo
+        regexp: '(^baseurl=).*(7.9.2009/extras/x86_64/)'
+        replace: '\1http://vault.centos.org/7.9.2009/extras/x86_64/'
+
+    - name: Clean YUM cache
+      command: yum clean all
+
+    - name: Install dnf using yum
+      ansible.builtin.yum:
+        name: dnf
+        state: present
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: Ensure that update repository index is done using dnf
+      ansible.builtin.dnf:
+        name: '*'
+        state: latest
+        use_backend: dnf4
+        update_cache: yes
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: Install Apache
+      ansible.builtin.dnf:
+        name: httpd
+        state: latest
+        use_backend: dnf4
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: Add PHP support for Apache
+      ansible.builtin.dnf:
+        name: php
+        state: latest
+        use_backend: dnf4
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: Ensure Apache is started and enabled
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: true
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: Allow HTTP and HTTPS traffic in the firewall
+      ansible.builtin.firewalld:
+        port: "{{ item }}"
+        permanent: true
+        state: enabled
+      loop:
+        - 80/tcp
+        - 443/tcp
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: Reload firewall to apply changes
+      ansible.builtin.service:
+        name: firewalld
+        state: reloaded
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
