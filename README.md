@@ -5,11 +5,11 @@ for CentOS use dnf
 # vim - find a string and replace it
 :%s/apt/dnf/g
 # apache on CentOS
-# just run
+just run
 ansible-playbook --ask-become-pass install_apache_for_CentOS_fixed.yml --limit target-3
 
 
-#### Ansible variables ####
+# Ansible variables 
 
  
 You can use set_fact to dynamically set the variables for each host within the playbook. This ensures that the correct variables are used for each host based on its hostname.
