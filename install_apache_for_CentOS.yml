@@ -1,0 +1,33 @@
+---
+- name: Ensure necessary packages are installed and updated
+  hosts: all
+  become: true
+  tasks:
+    - name: Install dnf using yum
+      ansible.builtin.yum:
+        name: dnf
+        state: present
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: Ensure that update repository index is done using dnf
+      ansible.builtin.dnf:
+        name: '*'
+        state: latest
+        use_backend: dnf4
+        update_cache: yes
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: Install apache2 package
+      ansible.builtin.dnf:
+        name: httpd
+        state: latest
+        use_backend: dnf4
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+    - name: Add PHP support for Apache
+      ansible.builtin.dnf:
+        name: php
+        state: latest
+        use_backend: dnf4
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
