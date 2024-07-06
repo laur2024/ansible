@@ -5,18 +5,18 @@
   tasks:
 
   - name: update repository index
-    apt:
+    dnf:
       update_cache: yes
-    when: ansible_distribution == "Centos"
+    when: ansible_distribution == "CentOS"
 
   - name: install apache2 package
-    apt:
+    dnf:
       name: apache2
       state: latest
-    when: ansible_distribution == "Centos"
+    when: ansible_distribution == "CentOS"
 
   - name: add php support for apache
-    apt:
+    dnf:
       name: libapache2-mod-php
       state: latest
-    when: ansible_distribution == "Ubuntu"  
+    when: ansible_distribution == "CentOS"  
