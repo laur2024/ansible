@@ -1,0 +1,18 @@
+---
+- name: Install Apache and PHP support packages
+  hosts: all
+  become: true
+  tasks:
+    - name: Set apache and php package variables based on hostname
+      set_fact:
+        apache_package: "{{ host_vars[inventory_hostname].apache_package | default(common_apache_package) }}"
+        php_package: "{{ host_vars[inventory_hostname].php_package | default(common_php_package) }}"
+
+    - name: Install Apache and PHP support packages
+      package:
+        name:
+          - "{{ apache_package }}"
+          - "{{ php_package }}"
+        state: latest
+        update_cache: yes
+

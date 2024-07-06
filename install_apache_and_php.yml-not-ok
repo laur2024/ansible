@@ -1,0 +1,17 @@
+---
+- name: Install Apache and PHP support packages
+  hosts: all
+  become: true
+  tasks:
+    - name: Include group-specific variables
+      include_vars:
+        file: "group_vars/target_servers.yml"
+
+    - name: Install Apache and PHP support packages
+      package:
+        name:
+          - "{{ apache_package }}"
+          - "{{ php_package }}"
+        state: latest
+        update_cache: yes
+
